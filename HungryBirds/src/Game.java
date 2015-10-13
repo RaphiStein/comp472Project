@@ -15,8 +15,8 @@ public class Game {
 
 
 		// Create Players
-		Player playerLarva = new Player(PlayerType.LARVA);
-		Player playerBirds = new Player(PlayerType.BIRDS);
+	//	Player playerLarva = new Player(PlayerType.LARVA);
+	//	Player playerBirds = new Player(PlayerType.BIRDS);
 		// Initialize Gameboard
 		Gameboard gb = Gameboard.init();
 
