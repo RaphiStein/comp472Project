@@ -6,20 +6,34 @@ import misc.PlayerType;
 import misc.RowColumnTuple;
 
 
-public class Gameboard {
+public class GameBoard {
 
-	private static Gameboard gameboard = null;
+	private static GameBoard gameboard = null;
 
-	Player[][] board; //Player Board
-	Map<String, Player> players; //Map containing the players
+	Player[][] board; // Need to change type to Player. For setting row number
+						// do 8-(rowNum) to get proper index
+	Map<String, Player> players;
 	Player currentPlayer;
 
-	private Gameboard() {
+	// Implemented as a Singleton (there can only be one gameboard)
+		public static GameBoard init() {
+			if (gameboard == null) {
+				gameboard = new GameBoard();
+			}
+			// Set Up Initial Bird and Larva Positions
+			// initially, the larva is located at position D2
+			// (on line 2), and the 4 birds are located at positions
+			// A1, C1, E1, G1.
+
+			return gameboard;
+		}
+		
+	private GameBoard() {
 		board = new Player[8][8];
 		players = new HashMap<String, Player>();
 
 		
-		players.put("L", new Player(PlayerType.LARVA, new RowColumnTuple(1, 3),
+		players.put("L", new Player(PlayerType.LARVA, new RowColumnTuple(7,3),
 				"L "));
 		players.put("B1", new Player(PlayerType.BIRDS,
 				new RowColumnTuple(0,0), "B1"));
@@ -30,6 +44,7 @@ public class Gameboard {
 		players.put("B4", new Player(PlayerType.BIRDS,
 				new RowColumnTuple(0,6), "B4"));
 
+		
 		/**
 		players.put("L",new Player(PlayerType.LARVA,new RowColumnTuple("D2"),
 				 "L"));
@@ -52,19 +67,52 @@ public class Gameboard {
 		}
 
 	}
-
-	// Implemented as a Singleton (there can only be one gameboard)
-	public static Gameboard init() {
-		if (gameboard == null) {
-			gameboard = new Gameboard();
+	
+	public  PlayerType checkWinner(PlayerType lastPlayer){
+		
+		Player larva = players.get("L");
+		
+		
+		if(lastPlayer == PlayerType.LARVA){
+			if(larva.getPosition().getRow() == 0) //If the larva made it past the fence
+				return PlayerType.LARVA;
+			else if(players.get("B1").getPosition().getRow() > larva.getPosition().getRow() ) //These check if all the birds are higher than the larva
+				if(players.get("B2").getPosition().getRow() > larva.getPosition().getRow() ) //Automatic win
+					if(players.get("B3").getPosition().getRow() > larva.getPosition().getRow() )
+						if(players.get("B4").getPosition().getRow() > larva.getPosition().getRow() )
+							return PlayerType.LARVA;
 		}
-		// Set Up Initial Bird and Larva Positions
-		// initially, the larva is located at position D2
-		// (on line 2), and the 4 birds are located at positions
-		// A1, C1, E1, G1.
-
-		return gameboard;
+		else if(larva.getPosition().getRow() == board.length -1){ //Larva in Top row and trapped
+			if(larva.getPosition().getColumn() == 0){
+				if(board[larva.getPosition().getRow()-1][larva.getPosition().getColumn()+1] != null)
+					return PlayerType.BIRDS;
+			}
+			else if(larva.getPosition().getColumn() == board.length -1){
+				if(board[larva.getPosition().getRow()-1][larva.getPosition().getColumn()-1] != null)
+					return PlayerType.BIRDS;
+			}
+			else {
+				if(board[larva.getPosition().getRow()-1][larva.getPosition().getColumn()+1] != null &&
+						board[larva.getPosition().getRow()-1][larva.getPosition().getColumn()-1] != null)
+					return PlayerType.BIRDS;
+			}
+			
+		}
+		else if(larva.getPosition().getColumn() == 0){ //larva at left most column of the board
+			if(board[larva.getPosition().getRow()-1][larva.getPosition().getColumn()+1] != null && 
+					board[larva.getPosition().getRow()+1][larva.getPosition().getColumn()+1] != null)
+				return PlayerType.BIRDS;
+		}
+		else if(larva.getPosition().getColumn() == board.length - 1){ //if larva at right most column
+			if(board[larva.getPosition().getRow()-1][larva.getPosition().getColumn()-1] != null || 
+					board[larva.getPosition().getRow()+1][larva.getPosition().getColumn()-1] != null)
+				return PlayerType.BIRDS;
+		}
+				
+		return null; //No winner
 	}
+
+	
 
 	public boolean checkMove(RowColumnTuple position, String p) {
 		Player player = players.get(p);
@@ -75,7 +123,7 @@ public class Gameboard {
 		int c = player.getPosition().getColumn();
 		int currentRow = player.getPosition().getRow();
 
-		if (player.getPlayerType() == PlayerType.LARVA) {
+		if (player.getPlayerType() == PlayerType.LARVA) { //Check if valid move for larva
 			if (col == (c + 1) || col == (c - 1) && col < 8) { // Check column
 																// for larva
 				if (row == (currentRow + 1) || row == (currentRow - 1)
@@ -83,7 +131,7 @@ public class Gameboard {
 					makeMove(position, player);
 				return true;
 			}
-		} else { // Check Birds
+		} else { // Check if valid move for Birds
 			if (col == (c + 1) || col == (c - 1)) { // Check column for birds
 				if (row == (currentRow + 1)) { // Check row for birds
 					makeMove(position, player);
@@ -104,12 +152,16 @@ public class Gameboard {
 		player.setPosition(pos);
 		board[player.getPosition().getRow()][player.getPosition().getColumn()] = player;
 		players.put(player.getName(), player);
+		
+		//Check if theres a winner
+		gameboard.checkWinner(player.getPlayerType());
 	}
 
 	public void drawBoard() {
+		
 		System.out.println("    A    B    C    D    E    F    G    H   ");
 		int rowNum = 8;
-		for (int i = board.length * 2; i >= 0; i--) {
+		for (int i = board.length * 2; i >=0; i--) {
 			if (i % 2 == 0) {
 				System.out
 						.println("  -----------------------------------------");
@@ -122,10 +174,10 @@ public class Gameboard {
 				line += "|";
 				System.out.println(line);
 				rowNum--;
-				// System.out.println(((i/2)+1)+"| A1 | B1 | C1 | D1 | E1 | F1 | G1 | H1 |");
-
 			}
 		}
+		System.out.println();
+		System.out.println();
 	}
 
 }

@@ -18,7 +18,7 @@ public class Game {
 	//	Player playerLarva = new Player(PlayerType.LARVA);
 	//	Player playerBirds = new Player(PlayerType.BIRDS);
 		// Initialize Gameboard
-		Gameboard gb = Gameboard.init();
+		GameBoard gb = GameBoard.init();
 
 	}
 
