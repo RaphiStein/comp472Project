@@ -33,7 +33,7 @@ public class GameBoard {
 		players = new HashMap<String, Player>();
 
 		
-		players.put("L", new Player(PlayerType.LARVA, new RowColumnTuple(7,3),
+		players.put("L", new Player(PlayerType.LARVA, new RowColumnTuple(1,3),
 				"L "));
 		players.put("B1", new Player(PlayerType.BIRDS,
 				new RowColumnTuple(0,0), "B1"));
