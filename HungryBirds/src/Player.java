@@ -19,17 +19,8 @@ public abstract class Player {
 		return isAI;
 	}
 	
-	/**
-	 * 
-	 * @return Result notification of move
-	 */
-	public String move(){
-		return null;
-	}
-	public boolean move(RowColumnTuple from, RowColumnTuple to){
-		return false;
-	}
-	
+	public abstract boolean move();
+	public abstract boolean move(RowColumnTuple from, RowColumnTuple to);
 	public abstract RowColumnTuple getPosition();
 	
 

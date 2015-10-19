@@ -8,11 +8,11 @@ package misc;
 public class BirdPositions {
 	// Implemented as singleton
 	private static BirdPositions birdPositions = null;
-	
+
 	//private final int NUMBER_OF_BIRDS = 4;
-	
+
 	private RowColumnTuple[] birdPositionsArray;
-	
+
 	private BirdPositions(){
 		RowColumnTuple b1Pos = new RowColumnTuple(0, 0);
 		RowColumnTuple b2Pos = new RowColumnTuple(0, 2);
@@ -22,13 +22,12 @@ public class BirdPositions {
 	}
 	public static BirdPositions getInstance(){
 		if (birdPositions == null){
-			return new BirdPositions();
+			System.out.println("BirdPositions Is Null");
+			birdPositions = new BirdPositions();
 		}
-		else{
-			return birdPositions;
-		}
+		return birdPositions;
 	}
-	
+
 	public int getNumberOfBirds() {
 		return birdPositionsArray.length;
 	}
@@ -54,5 +53,15 @@ public class BirdPositions {
 		}
 		return board;
 	}
-	
+	public boolean move(RowColumnTuple from, RowColumnTuple to) {
+		// FIND bird at FROM position
+		for (int i = 0; i < birdPositionsArray.length; i++) {
+			if (birdPositionsArray[i].getRow() == from.getRow() && birdPositionsArray[i].getColumn() == from.getColumn()){
+				birdPositionsArray[i].setRow(to.getRow());
+				birdPositionsArray[i].setColumn(to.getColumn());
+				return true;
+			}
+		}
+		return false;
+	}
 }
