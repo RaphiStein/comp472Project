@@ -1,34 +1,36 @@
 import misc.PlayerType;
 import misc.RowColumnTuple;
 
-public class Player {
+public abstract class Player {
 	
-	private PlayerType playerType;
-	private RowColumnTuple position;
-	private String name;
+	private PlayerType playerType = null;
+	private boolean isAI; // is this player being run by Artificial Intelligence?
 	
-	public Player(PlayerType playerType, RowColumnTuple position, String name){
-		this.playerType = playerType;
-		this.position = position;
-		this.name = name;
+	public Player(PlayerType type, boolean isAI){
+		playerType = type;
+		this.isAI = isAI;
 	}
 	
-	public PlayerType getPlayerType(){
+	public PlayerType getPlayerType() {
 		return playerType;
 	}
-	
-	public RowColumnTuple getPosition()
-	{
-		return position;
-	}
-	
-	public void setPosition(RowColumnTuple p)
-	{
-		position = p;
-	}
 
-	public String getName() {
-		return name;
+	public boolean isAI() {
+		return isAI;
 	}
+	
+	/**
+	 * 
+	 * @return Result notification of move
+	 */
+	public String move(){
+		return null;
+	}
+	public boolean move(RowColumnTuple from, RowColumnTuple to){
+		return false;
+	}
+	
+	public abstract RowColumnTuple getPosition();
+	
 
 }

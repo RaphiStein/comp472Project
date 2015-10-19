@@ -1,7 +1,10 @@
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
+import misc.BirdPositions;
+import misc.LarvaPosition;
 import misc.PlayerType;
 import misc.RowColumnTuple;
 
@@ -9,11 +12,12 @@ import misc.RowColumnTuple;
 public class GameBoard {
 
 	private static GameBoard gameboard = null;
+	
+	private BirdPositions birdPositions;
+	private LarvaPosition larvaPositions;
 
 	Player[][] board; // Need to change type to Player. For setting row number
 						// do 8-(rowNum) to get proper index
-	Map<String, Player> players;
-	Player currentPlayer;
 
 	// Implemented as a Singleton (there can only be one gameboard)
 		public static GameBoard init() {
@@ -30,91 +34,66 @@ public class GameBoard {
 		
 	private GameBoard() {
 		board = new Player[8][8];
-		players = new HashMap<String, Player>();
-
 		
-		players.put("L", new Player(PlayerType.LARVA, new RowColumnTuple(1,3),
-				"L "));
-		players.put("B1", new Player(PlayerType.BIRDS,
-				new RowColumnTuple(0,0), "B1"));
-		players.put("B2", new Player(PlayerType.BIRDS,
-				new RowColumnTuple(0,2), "B2"));
-		players.put("B3", new Player(PlayerType.BIRDS,
-				new RowColumnTuple(0,4), "B3"));
-		players.put("B4", new Player(PlayerType.BIRDS,
-				new RowColumnTuple(0,6), "B4"));
-
-		
-		/**
-		players.put("L",new Player(PlayerType.LARVA,new RowColumnTuple("D2"),
-				 "L"));
-		players.put("B1", new Player(PlayerType.BIRDS,
-				new RowColumnTuple("A1"), "B1"));
-		players.put("B2", new Player(PlayerType.BIRDS,
-				new RowColumnTuple("C1"), "B2"));
-		players.put("B3", new Player(PlayerType.BIRDS,
-				new RowColumnTuple("E1"), "B3"));
-		players.put("B4", new Player(PlayerType.BIRDS,
-				new RowColumnTuple("G1"), "B4"));
-
-		board[players.get("L").getPosition().getRow()][players.get("L")
-				.getPosition().getColumn()] = players.get("L");
-				**/
-		// Set the player positions in the board
-		for (Map.Entry<String, Player> entry : players.entrySet()) {
-			Player p = entry.getValue();
-			 board[p.getPosition().getRow()][p.getPosition().getColumn()] = p;
-		}
-
+		birdPositions = BirdPositions.getInstance();
+		larvaPositions = LarvaPosition.getInstance();
 	}
 	
-	public  PlayerType checkWinner(PlayerType lastPlayer){
+	public Player checkWinner(PlayerType lastMove, LinkedList<Player> players){
+		PlayerLarva larva = null;
+		PlayerBird birds = null;
 		
-		Player larva = players.get("L");
-		
-		
-		if(lastPlayer == PlayerType.LARVA){
-			if(larva.getPosition().getRow() == 0) //If the larva made it past the fence
-				return PlayerType.LARVA;
-			else if(players.get("B1").getPosition().getRow() > larva.getPosition().getRow() ) //These check if all the birds are higher than the larva
-				if(players.get("B2").getPosition().getRow() > larva.getPosition().getRow() ) //Automatic win
-					if(players.get("B3").getPosition().getRow() > larva.getPosition().getRow() )
-						if(players.get("B4").getPosition().getRow() > larva.getPosition().getRow() )
-							return PlayerType.LARVA;
+		// Get Players from players Queue
+		if (lastMove == PlayerType.BIRDS){
+			larva = (PlayerLarva) players.getFirst(); 
+			birds = (PlayerBird)  players.getLast();
 		}
-		else if(larva.getPosition().getRow() == board.length -1){ //Larva in Top row and trapped
-			if(larva.getPosition().getColumn() == 0){
-				if(board[larva.getPosition().getRow()-1][larva.getPosition().getColumn()+1] != null)
-					return PlayerType.BIRDS;
+		else {
+			birds = (PlayerBird)  players.getFirst(); 
+			larva = (PlayerLarva) players.getLast();
+		}
+		
+		// ANALYZE
+		
+		// IF LAST MOVE WAS THE BIRDS
+		if (lastMove == PlayerType.BIRDS){
+			// BIRDS WIN...
+			// BIRD LANDED ON LARVA
+			if (birdPositions.isBirdAtPosition(larva.getPosition())){
+				return birds;
 			}
-			else if(larva.getPosition().getColumn() == board.length -1){
-				if(board[larva.getPosition().getRow()-1][larva.getPosition().getColumn()-1] != null)
-					return PlayerType.BIRDS;
-			}
-			else {
-				if(board[larva.getPosition().getRow()-1][larva.getPosition().getColumn()+1] != null &&
-						board[larva.getPosition().getRow()-1][larva.getPosition().getColumn()-1] != null)
-					return PlayerType.BIRDS;
+			// BIRDS LOSE...
+			// BIRDS ALL ABOVE THE LARVA ROW
+			if (birdPositions.allBirdsAreAbove(larva.getPosition().getRow())){
+				return larva;
 			}
 			
 		}
-		else if(larva.getPosition().getColumn() == 0){ //larva at left most column of the board
-			if(board[larva.getPosition().getRow()-1][larva.getPosition().getColumn()+1] != null && 
-					board[larva.getPosition().getRow()+1][larva.getPosition().getColumn()+1] != null)
-				return PlayerType.BIRDS;
+		
+		// IF LASTMOVE WAS THE LARVA
+		else if (lastMove == PlayerType.LARVA){
+			// LARVA WINS....
+			// IF LARVA IS ON ROW 0... 
+			if (larva.getPosition().getRow() <= 0){
+				return larva;
+			}
 		}
-		else if(larva.getPosition().getColumn() == board.length - 1){ //if larva at right most column
-			if(board[larva.getPosition().getRow()-1][larva.getPosition().getColumn()-1] != null || 
-					board[larva.getPosition().getRow()+1][larva.getPosition().getColumn()-1] != null)
-				return PlayerType.BIRDS;
+		
+		else {
+			try {
+				throw new Exception("Strange Error in checkWinner");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
-				
 		return null; //No winner
 	}
 
 	
 
 	public boolean checkMove(RowColumnTuple position, String p) {
+		/*
 		Player player = players.get(p);
 
 		int col = position.getColumn();
@@ -138,11 +117,13 @@ public class GameBoard {
 					return true;
 				}
 			}
-		}
+		}*/
 		return false;
+		
 	}
 
 	public void makeMove(RowColumnTuple pos, Player player) {
+		/*
 		// change the player position in board
 
 		// First erase the old position
@@ -155,9 +136,21 @@ public class GameBoard {
 		
 		//Check if theres a winner
 		gameboard.checkWinner(player.getPlayerType());
+		*/
 	}
 
 	public void drawBoard() {
+		char[][] board = new char[8][8];
+
+		// POPULATE
+		for (int i = 0; i < board.length; i++) {
+			for (int j = 0; j < board.length; j++) {
+				board[i][j] = ' ';
+			}
+		}
+		board = larvaPositions.insertLarva(board);
+		board = birdPositions.insertBirds(board);
+		
 		
 		System.out.println("    A    B    C    D    E    F    G    H   ");
 		int rowNum = 8;
@@ -169,8 +162,8 @@ public class GameBoard {
 				String line = String.valueOf(rowNum) + " ";
 
 				for (int j = 0; j < board.length; j++)
-					line += (board[i / 2][j] == null ? "|    " : "| "
-							+ board[i / 2][j].getName() + " ");
+					line += (board[i / 2][j] == ' ' ? "|    " : "|  "
+							+ board[i / 2][j] + " ");
 				line += "|";
 				System.out.println(line);
 				rowNum--;
