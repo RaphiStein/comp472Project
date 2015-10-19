@@ -11,6 +11,9 @@ import misc.RowColumnTuple;
 
 public class GameBoard {
 
+	private static int BOARD_ROWS = 8;
+	private static int BOARD_COLUMNS = 8;
+	
 	private static GameBoard gameboard = null;
 	
 	private BirdPositions birdPositions;
@@ -62,6 +65,35 @@ public class GameBoard {
 			if (birdPositions.isBirdAtPosition(larva.getPosition())){
 				return birds;
 			}
+			// BIRDS ENCIRCLE LARVA
+			RowColumnTuple diagonalBelowLeft = new RowColumnTuple(larva.getPosition().getRow()-1, larva.getPosition().getColumn()-1);
+			RowColumnTuple diagonalBelowRight = new RowColumnTuple(larva.getPosition().getRow()-1, larva.getPosition().getColumn()+1);
+			RowColumnTuple diagonalAboveLeft = new RowColumnTuple(larva.getPosition().getRow()+1, larva.getPosition().getColumn()-1);
+			RowColumnTuple diagonalAboveRight = new RowColumnTuple(larva.getPosition().getRow()+1, larva.getPosition().getColumn()+1);
+			if (
+					// Larva is trapped against left wall with bird above and below
+					(larva.getPosition().getColumn() == 0 &&
+					birdPositions.isBirdAtPosition(diagonalAboveRight) && birdPositions.isBirdAtPosition(diagonalBelowRight))
+					||
+					// Larva is trapped against right wall with bird above and below
+					(larva.getPosition().getColumn() == BOARD_COLUMNS-1 &&
+					birdPositions.isBirdAtPosition(diagonalAboveLeft) && birdPositions.isBirdAtPosition(diagonalBelowLeft))
+					||
+					// Larva is trapped against top wall with bird above and below
+					(larva.getPosition().getRow() == BOARD_ROWS-1 &&
+					birdPositions.isBirdAtPosition(diagonalBelowLeft) && birdPositions.isBirdAtPosition(diagonalBelowRight))
+					||
+					// Larva is completely surrounded
+					(
+							birdPositions.isBirdAtPosition(diagonalBelowLeft) && 
+							birdPositions.isBirdAtPosition(diagonalBelowRight) &&
+							birdPositions.isBirdAtPosition(diagonalAboveLeft) &&
+							birdPositions.isBirdAtPosition(diagonalAboveRight)
+					)	
+					){
+				return birds;
+				
+			}
 			// BIRDS LOSE...
 			// BIRDS ALL ABOVE THE LARVA ROW
 			if (birdPositions.allBirdsAreAbove(larva.getPosition().getRow())){
@@ -75,6 +107,10 @@ public class GameBoard {
 			// LARVA WINS....
 			// IF LARVA IS ON ROW 0... 
 			if (larva.getPosition().getRow() <= 0){
+				return larva;
+			}
+			// IF LARVA IS ON LOWER ROW THAN ALL BIRDS
+			else if (birdPositions.allBirdsAreAbove(larva.getPosition().getRow())){
 				return larva;
 			}
 		}
