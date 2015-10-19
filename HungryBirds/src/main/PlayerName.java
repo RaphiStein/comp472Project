@@ -1,3 +1,4 @@
+package main;
 
 public enum PlayerName {
 	PLAYER_ONE,

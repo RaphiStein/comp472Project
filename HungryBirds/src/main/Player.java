@@ -1,3 +1,4 @@
+package main;
 import misc.PlayerType;
 import misc.RowColumnTuple;
 
