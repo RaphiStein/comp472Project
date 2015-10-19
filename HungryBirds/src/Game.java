@@ -23,8 +23,8 @@ public class Game {
 		this.gameMode = gameMode;
 		// Create Players
 		players = new LinkedList<Player>();
-		players.add(new PlayerBird(shouldBirdsBeAI));
 		players.add(new PlayerLarva(shouldLarvaBeAI));
+		players.add(new PlayerBird(shouldBirdsBeAI));
 	};
 
 	private static void welcomeMessage(){
@@ -90,16 +90,21 @@ public class Game {
 		boolean gameOver = false;
 		GameBoard gameBoard = GameBoard.init();
 		gameBoard.drawBoard();
-		
+
 		// GAME PLAY
 		while (!gameOver){
 			Player currentPlayer = game.getNextTurnPlayer();
 			System.out.println("Turn: " + currentPlayer.getPlayerType());
 			if (!currentPlayer.isAI()){ // if current player is manual (not played by AI)
-				// Enter Move (i.e. A3 D4 will be read as moveFrom = A3, moveTo = D4)
-				RowColumnTuple moveFrom = new RowColumnTuple(scanner.next());
-				RowColumnTuple moveTo = new RowColumnTuple(scanner.next());
-				currentPlayer.move(moveFrom, moveTo);
+				boolean wasMoveSuccessful = false;
+				while (!wasMoveSuccessful){
+					// Enter Move (i.e. A3 D4 will be read as moveFrom = A3, moveTo = D4)
+					RowColumnTuple moveFrom = new RowColumnTuple(scanner.next());
+					RowColumnTuple moveTo = new RowColumnTuple(scanner.next());
+					if (currentPlayer.move(moveFrom, moveTo)){
+						wasMoveSuccessful = true;
+					}
+				}
 			}
 			else {
 				System.out.println("AI Not Implemented Yet");
@@ -112,5 +117,9 @@ public class Game {
 			}
 			gameBoard.drawBoard();
 		}
+		System.out.println("*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-");
+		System.out.println("      Thank you for playing      ");
+		System.out.println("*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-");
+		System.exit(0);
 	}
 }

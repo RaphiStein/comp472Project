@@ -1,5 +1,10 @@
 package misc;
 
+/**
+ * Object to comprehensively store row and column tuples so we don't have confusing ints flying around
+ * @author Raphi
+ *
+ */
 public class RowColumnTuple {
 	
 	private int row; // 0-7

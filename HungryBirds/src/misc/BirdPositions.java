@@ -1,7 +1,7 @@
 package misc;
 
 /**
- * Where information about where the birds are located is kept.
+ * Information about where the birds are located is kept here and Players and Gameboard have a reference to it
  * @author Raphi
  *
  */
@@ -22,7 +22,6 @@ public class BirdPositions {
 	}
 	public static BirdPositions getInstance(){
 		if (birdPositions == null){
-			System.out.println("BirdPositions Is Null");
 			birdPositions = new BirdPositions();
 		}
 		return birdPositions;

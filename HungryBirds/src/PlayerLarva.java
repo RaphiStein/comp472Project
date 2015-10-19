@@ -20,14 +20,35 @@ public class PlayerLarva extends Player {
 	}
 	@Override
 	public boolean move(RowColumnTuple from, RowColumnTuple to) {
-		// Check that a piece is at from position
-		if (larvaPosition.isLarvaAtPosition(from)){
-			return larvaPosition.move(from, to);
+		if (isLegalMove(from, to)){
+			// Check that a piece is at from position
+			if (larvaPosition.isLarvaAtPosition(from)){
+				return larvaPosition.move(from, to);
+			}
+			else {
+				// ILLEGAL MOVE. THERE ARE NO BIRDS THERE
+				System.out.println("ILLEGAL. The Larva is not there");
+				return false;
+			}
 		}
 		else {
-			// ILLEGAL MOVE. THERE ARE NO BIRDS THERE
-			System.out.println("ILLEGAL. The Larva is not there");
+			try {
+				throw new Exception("Illegal Move. Birds can only move forward diagonally");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			return false;
 		}
+	}
+	@Override
+	public boolean isLegalMove(RowColumnTuple from, RowColumnTuple to) {
+		if (Math.abs(from.getColumn() - to.getColumn()) == 1){
+			if (Math.abs(from.getRow() - to.getRow()) == 1){
+				return true;				
+			}
+			return false;
+		}
+		return false;
 	}
 }

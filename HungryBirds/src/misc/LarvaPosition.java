@@ -1,5 +1,10 @@
 package misc;
 
+/**
+ * Information about where the larva is located is kept here and Players and Gameboard have a reference to it
+ * @author Raphi
+ *
+ */
 public class LarvaPosition {
 	private static LarvaPosition larvaPosition = null;
 
